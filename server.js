@@ -6,9 +6,24 @@ require('dotenv').config();
 
 const app = express();
 
-// Middlewares
-app.use(cors()); // Permite que o front-end acesse esta API
-app.use(express.json()); // Permite que o Express entenda JSON
+const whitelist = [
+  process.env.CLIENT_URL,       // A URL do seu front-end no Vercel
+  'http://localhost:3000',      // O seu ambiente de desenvolvimento React local
+];
+
+// 2. Configure as opções do CORS
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || whitelist.indexOf(origin) !== -1) {
+      callback(null, true); 
+    } else {
+      callback(new Error('Acesso não permitido pelo CORS'));
+    }
+  }
+};
+
+app.use(cors(corsOptions));
+
 
 // Conexão com o Banco de Dados
 mongoose.connect(process.env.MONGO_URI)
