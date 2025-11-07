@@ -5,25 +5,13 @@ const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
-
-const whitelist = [
-  process.env.CLIENT_URL,       // A URL do seu front-end no Vercel
-  'http://localhost:3000',      // O seu ambiente de desenvolvimento React local
-];
-
-// 2. Configure as opções do CORS
+const FRONTEND_URL = process.env.CLIENT_URL; // Vamos usar variáveis de ambiente!
 const corsOptions = {
-  origin: function (origin, callback) {
-    if (!origin || whitelist.indexOf(origin) !== -1) {
-      callback(null, true); 
-    } else {
-      callback(new Error('Acesso não permitido pelo CORS'));
-    }
-  }
+  origin: [FRONTEND_URL, 'http://localhost:3000'] // Permite o Vercel e o seu PC
 };
-
-app.use(cors(corsOptions));
-
+// Middlewares
+app.use(cors(corsOptions)); // Permite que o front-end acesse esta API
+app.use(express.json()); // Permite que o Express entenda JSON
 
 // Conexão com o Banco de Dados
 mongoose.connect(process.env.MONGO_URI)
@@ -35,7 +23,7 @@ app.use('/api/users', require('./routes/users'));
 app.use('/api/expenses', require('./routes/expenses'));
 
 // Iniciar o Servidor
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
 });
